@@ -42,6 +42,7 @@ namespace IntroductionToJsonFull.App
 
             Account account = JsonConvert.DeserializeObject<Account>(json2);    // takes the text match the field names
 
+
             Console.WriteLine(account.Email);
 
             Account a2 = new Account("a@b.com", false, DateTime.UtcNow, new List<string> { "user" });
@@ -65,10 +66,16 @@ namespace IntroductionToJsonFull.App
             dynamic l = j[1];
 
 
+            Console.WriteLine(l.Count);
+            foreach(dynamic row in l)
+            {
+                Console.WriteLine($"{row.date}: {row.countryiso3code}: ${row.value / 1000000000:F3}bn");
+            }
+
             while (Console.ReadKey().Key != ConsoleKey.Escape)
                 Console.WriteLine("Press [esc] to exit");
         }
-
+        
         public class Account
         {
             string _email;
