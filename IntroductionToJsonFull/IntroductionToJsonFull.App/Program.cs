@@ -42,7 +42,6 @@ namespace IntroductionToJsonFull.App
 
             Account account = JsonConvert.DeserializeObject<Account>(json2);    // takes the text match the field names
 
-
             Console.WriteLine(account.Email);
 
             Account a2 = new Account("a@b.com", false, DateTime.UtcNow, new List<string> { "user" });
