@@ -3,10 +3,12 @@ using Newtonsoft.Json.Linq;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;   // WebClient
 using System.Text;
 using System.IO;
+using System.Timers;
 using System.Threading.Tasks;
 
 namespace IntroductionToJsonFull.App
@@ -18,6 +20,14 @@ namespace IntroductionToJsonFull.App
         // step one - using the nuget package manager
         // https://docs.microsoft.com/en-us/nuget/quickstart/install-and-use-a-package-in-visual-studio 
         static void Main(string[] args)
+        {
+            OpenFile();
+
+            while (Console.ReadKey().Key != ConsoleKey.Escape)
+                Console.WriteLine("press [Esc] to exit");
+        }
+
+        static void JsonString()
         {
             Console.WriteLine("Hello World!");
 
@@ -56,7 +66,7 @@ namespace IntroductionToJsonFull.App
             using (var wc = new WebClient())    // creates the connetion & close it
             {
                 jsonDownload = wc.DownloadString("https://blockchain.info/latestblock");
-                    // CONNECT, DOWNLOAD the text in the url
+                // CONNECT, DOWNLOAD the text in the url
             }
             // DISCONNECT the linkage to the URL
 
@@ -66,15 +76,41 @@ namespace IntroductionToJsonFull.App
 
 
             Console.WriteLine(l.Count);
-            foreach(dynamic row in l)
+            foreach (dynamic row in l)
             {
                 Console.WriteLine($"{row.date}: {row.countryiso3code}: ${row.value / 1000000000:F3}bn");
             }
-
-            while (Console.ReadKey().Key != ConsoleKey.Escape)
-                Console.WriteLine("Press [esc] to exit");
         }
-        
+
+        // private static Timer Timer;     // create a Timer
+
+        static void OpenFile()
+        {
+            string filepath = @"C:\Users\stbay\Desktop\Computer Science\C#\Github\intro-json-Erick-Jian\IntroductionToJsonFull\IntroductionToJsonFull.App\Bitcoin_Blocks.txt";
+            string content;
+
+
+            using (var BuiltInBrowser = new WebClient())    // creates the connetion & close it
+            {
+                content = BuiltInBrowser.DownloadString("https://blockchain.info/latestblock");
+                // CONNECT, DOWNLOAD the text in the url
+            }
+
+            bool Existence = File.Exists(filepath); 
+            if (Existence == true)      // txt exists
+            {
+                using (StreamWriter FileWriter = File.AppendText(filepath))
+                {    
+                    while(true)
+                    {
+                        FileWriter.WriteLine(content + "\n");
+                        System.Threading.Thread.Sleep(18000);
+                        continue;
+                    }
+                }
+            }
+        }
+
         public class Account
         {
             string _email;
@@ -99,7 +135,7 @@ namespace IntroductionToJsonFull.App
         public class BlocksBTC
         {
             string _SHA256hash;
-            int _time;              // in Unix Format: https://en.wikipedia.org/wiki/Unix_time
+            int _time;              // in Unix Timestamp Format: https://en.wikipedia.org/wiki/Unix_time
             int _BlockIndex;
             int _height;
             Array[] _txIndexes;
@@ -118,161 +154,6 @@ namespace IntroductionToJsonFull.App
             public int BlockIndex { get => _BlockIndex; set => _BlockIndex = value; }
             public int Height { get => _height; set => _height = value; }
             public Array[] TxIndexes { get => _txIndexes; set => _txIndexes = value; }
-
-        }
-    }
-}
-
-
-namespace Week_5_File_PREP.App
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            Q1();
-            Q2();
-            Q3();
-
-            Console.ReadKey();
-        }
-
-        static void Q1()
-        {
-            // Input String
-            string content = "Hello File";          // Could be replaced by Console.WriteLine & ReadLine
-
-            // create new file
-            string filename = "sentences_original.txt";
-            File.WriteAllText(filename, content);   // Create an "intermediate" file and write the contents of "content" to it
-
-            // grab the info: both the content and the path
-            StreamReader filereader = File.OpenText(filename);          // stores the content in the file in "filereader"
-            string docpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);  // desired output location
-
-            // combine
-            string docinfo = Path.Combine(docpath, "sentences.txt");     /* combine path and O/P file name
-                                                                                         to form the location */
-            bool exists = File.Exists(filename);    // presence check
-
-            // add text after the text that already exists
-            if (exists)
-            {
-                Console.WriteLine("Already Exists");
-                Console.WriteLine("Do you want to write sth else ?");
-
-                // using provides a localized "function" - wrapping for output file so don'e need to close it
-                using (StreamWriter filewriter = File.AppendText(docinfo))     // alternative: new StreamWriter(docinfo, true)
-                {
-                    string line;
-                    while (true)
-                    {
-                        line = filereader.ReadLine();       // reads the text in the file stored in "filereader" line by line
-                        if (line == null)
-                        { break; }                          // stops when all lines has been read and written
-                        filewriter.WriteLine(line);
-                    }
-                    // close the Streamreader
-                    filewriter.Close();
-                }
-                // close the Streamwriter
-                filereader.Close();
-            }
-            // creating new file / overwriting nothing
-            else
-            {
-                using (StreamWriter filewriter = File.CreateText(docinfo))      // alternative: new StreamWriter(docinfo)
-                {
-                    // doing the same thing
-                    string line = string.Empty;
-                    while (line != null)
-                    {
-                        line = filereader.ReadLine();
-                        if (line != null)
-                        {
-                            filewriter.WriteLine(line);
-                        }
-                    }
-                    // close both
-                    filewriter.Close();
-                }
-                filereader.Close();
-            }
-        }
-
-        static void Q2()
-        {
-            int counts = 4;
-            int max = 10;
-
-            // Random Number Generator setup
-            Random rand = new Random();         // variable type: random number
-
-            // Create the location of the output file
-            string doc_path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string doc_loc = Path.Combine(doc_path, "Q2_Main.txt");
-
-            if (!File.Exists(doc_loc))
-            {
-                using (StreamWriter SW = File.CreateText(doc_loc))
-                {
-                    for (int i = 0; i < counts; i++)
-                    {
-                        SW.WriteLine(rand.Next(1, max + 1));
-                    }
-                    SW.Close();
-                }
-            }
-
-            // 2nd file - sorting   
-            string doc_path2 = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string doc_loc2 = Path.Combine(doc_path2, "Q2_Sorted.txt");     // generate full path
-
-            // placing the values in list
-
-            List<string> ListofStrings = File.ReadAllLines(doc_loc).ToList();
-
-            foreach (string n in ListofStrings)
-            {
-                Console.WriteLine(n);
-            }
-            List<int> ListofIntegers = ListofStrings.Select(x => int.Parse(x)).ToList();  // Stack Overflow
-
-            int SumOfList = 0;
-            foreach (int INTEGERS in ListofIntegers)
-            {
-                SumOfList += INTEGERS;      // compare using system method & manual method
-            }
-            Debug.Assert(SumOfList == ListofIntegers.Sum());    // type & value check
-
-            //List<int> ListofIntegers = ListofStrings.Select(x => new int() { SomeValue = x.SomeValue }).ToList();
-
-            /* Sorting strategy: bubble sort, the smaller value goes into another list, where this process is repeated until 
-              foreach int in list Debug.Assert(PREVIOUS_VALUE < NEXT_VALUE) */
-        }
-
-        static void Q3()
-        {
-            // get the path of the file
-            string filename = "stations.txt";
-            string PATH = Path.GetFullPath(filename);
-            List<string> Alphabet = new List<string> { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
-
-            if (!String.IsNullOrEmpty(PATH))    // Stack Overflow - LinQ Query method
-            {
-                var query = File.ReadLines(PATH).Where(line => !String.IsNullOrEmpty(line)).GroupBy(line => line.First());
-                /*IDs = query.Select(a => a.ID).ToList();
-                List<string> IDs = (from c in doc.Root.Elements("a").Elements("b") select c.Element("val").Value).ToList()*/
-                // this structure will be used to get values from linQ query to a string List
-
-                foreach (string l in Alphabet)
-                {
-                    if (!IDs.Contains(l))
-                    {
-                        Console.WriteLine(l);
-                    }
-                }
-            }
 
         }
     }
